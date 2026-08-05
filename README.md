@@ -90,6 +90,27 @@ Có 2 cách (cách sau ghi đè cách trước):
 Trên EdgeOne không cần KV: Web UI hiển thị form **chỉ đọc** kèm thông báo đặt cấu hình qua
 biến môi trường; mọi nỗ lực lưu qua UI đều trả về hướng dẫn rõ ràng.
 
+## 🔌 Kết nối MCP từ xa qua HTTP (`/mcp`)
+
+Web app (local lẫn EdgeOne) mở sẵn endpoint **MCP Streamable HTTP** tại `/mcp` —
+trả lời **JSON-RPC thuần** (không cần SSE), giúp Claude Desktop, Cursor, Claude Code…
+kết nối trực tiếp tới bản deploy:
+
+```json
+{
+  "mcpServers": {
+    "email": {
+      "type": "http",
+      "url": "https://<project>.edgeone.app/mcp"
+    }
+  }
+}
+```
+
+Luồng chuẩn (JSON-RPC qua POST): `initialize` → `notifications/initialized` →
+`tools/list` → `tools/call`. Server tự chèn header `Accept` cần thiết nên client nào
+cũng gọi được; mỗi session có `Mcp-Session-Id` riêng (tự dọn khi đóng).
+
 ## 🚀 Deploy lên EdgeOne Pages
 
 ```bash
@@ -108,6 +129,7 @@ npm run deploy        # EdgeOne Pages (đã có sẵn cấu hình deploy)
 ```
 src/
 ├── config.ts          # Cấu hình env + settings store (tự chọn fs/KV) + mask mật khẩu
+├── mcp-http.ts        # Endpoint /mcp: MCP Streamable HTTP (JSON-RPC, không SSE)
 ├── storage.ts         # Tầng lưu trữ: backend KV (EdgeOne) + backend file (Node)
 ├── email-service.ts   # Lõi IMAP (imapflow) + SMTP (nodemailer)
 ├── mcp-server.ts      # MCP server: 7 tools, stdio + in-memory client
