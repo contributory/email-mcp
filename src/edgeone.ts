@@ -11,6 +11,23 @@ import { createWebApp } from './api-app.js';
    - File tĩnh được phục vụ bằng cách re-fetch URL (như template gốc)
    ═══════════════════════════════════════════════════════════ */
 
+/**
+ * EdgeOne Pages đưa biến môi trường vào `context.env`, KHÔNG phải `process.env`.
+ * Phải copy sang process.env trước khi config.ts đọc (envConfig dùng process.env).
+ */
+function injectEnvIntoProcess(env: Record<string, any>): void {
+  const proc = (globalThis as any).process as
+    | { env?: Record<string, string | undefined> }
+    | undefined;
+  if (!proc?.env) return;
+  for (const [k, v] of Object.entries(env)) {
+    // Chỉ copy giá trị string (bỏ qua bindings như my_kv, object…), không ghi đè
+    if (typeof v === 'string' && proc.env[k] === undefined) {
+      proc.env[k] = v;
+    }
+  }
+}
+
 export async function emailOnRequest(context: {
   request: Request;
   params: Record<string, string>;
@@ -19,6 +36,7 @@ export async function emailOnRequest(context: {
   // Chế độ EdgeOne: ưu tiên biến môi trường; KV chỉ dùng nếu có binding
   setEdgeOneMode(true);
   setKvBinding(context.env?.my_kv || null);
+  injectEnvIntoProcess(context.env || {});
 
   const mcp = await createInMemoryClient();
   const app = createWebApp(mcp.client);
