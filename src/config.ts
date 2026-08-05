@@ -43,7 +43,7 @@ export function envConfig(): MailConfig {
     imapSecure: bool(process.env.IMAP_SECURE, true),
     imapUser: process.env.IMAP_USER || '',
     imapPass: process.env.IMAP_PASSWORD || '',
-    smtpHost: process.env.SMTP_HOST || process.env.IMAP_HOST || 'smtp.gmail.com',
+    smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
     smtpPort: num(process.env.SMTP_PORT, 465),
     smtpSecure: bool(process.env.SMTP_SECURE, true),
     smtpUser: process.env.SMTP_USER || process.env.IMAP_USER || '',
@@ -109,15 +109,21 @@ export async function getMailConfig(): Promise<MailConfig> {
 }
 
 /** Lưu cấu hình (password trống hoặc '********' => giữ nguyên) */
-export async function saveSettings(patch: Partial<MailConfig>): Promise<MailConfig> {
+export async function saveSettings(
+  patch: Partial<MailConfig>,
+): Promise<MailConfig> {
   const current = await getMailConfig();
   const next: MailConfig = {
     ...current,
     ...patch,
     imapPass:
-      patch.imapPass && patch.imapPass !== MASK ? patch.imapPass : current.imapPass,
+      patch.imapPass && patch.imapPass !== MASK
+        ? patch.imapPass
+        : current.imapPass,
     smtpPass:
-      patch.smtpPass && patch.smtpPass !== MASK ? patch.smtpPass : current.smtpPass,
+      patch.smtpPass && patch.smtpPass !== MASK
+        ? patch.smtpPass
+        : current.smtpPass,
   };
   await (await getStore()).write(next);
   return next;
