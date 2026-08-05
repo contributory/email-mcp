@@ -35,20 +35,48 @@ function bool(v: string | undefined, fallback: boolean): boolean {
   return v === '1' || v.toLowerCase() === 'true' || v.toLowerCase() === 'yes';
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Overlay biến môi trường cho edge runtime (EdgeOne / Workers).
+   Trên edge, biến môi trường nằm ở `context.env` chứ KHÔNG phải
+   `process.env` (process.env có thể không tồn tại hoặc read-only).
+   Entry EdgeOne gọi `setEnvOverlay(context.env)` ở mỗi request để
+   `envConfig()` đọc được. Local Node vẫn dùng process.env như cũ.
+   ═══════════════════════════════════════════════════════════ */
+let envOverlay: Record<string, string> = {};
+
+/** Nạp biến môi trường từ context.env (EdgeOne) — chỉ giữ giá trị chuỗi */
+export function setEnvOverlay(env: Record<string, any> | null | undefined): void {
+  if (!env) {
+    envOverlay = {};
+    return;
+  }
+  const next: Record<string, string> = {};
+  for (const [k, v] of Object.entries(env)) {
+    if (typeof v === 'string') next[k] = v;
+  }
+  envOverlay = next;
+}
+
+/** Đọc biến môi trường: overlay (edge) ưu tiên, fallback về process.env (Node) */
+function readEnv(key: string): string | undefined {
+  if (key in envOverlay) return envOverlay[key];
+  return typeof process !== 'undefined' ? process.env?.[key] : undefined;
+}
+
 /** Cấu hình từ biến môi trường (mặc định hướng tới Gmail) */
 export function envConfig(): MailConfig {
   return {
-    imapHost: process.env.IMAP_HOST || 'imap.gmail.com',
-    imapPort: num(process.env.IMAP_PORT, 993),
-    imapSecure: bool(process.env.IMAP_SECURE, true),
-    imapUser: process.env.IMAP_USER || '',
-    imapPass: process.env.IMAP_PASSWORD || '',
-    smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-    smtpPort: num(process.env.SMTP_PORT, 465),
-    smtpSecure: bool(process.env.SMTP_SECURE, true),
-    smtpUser: process.env.SMTP_USER || process.env.IMAP_USER || '',
-    smtpPass: process.env.SMTP_PASSWORD || process.env.IMAP_PASSWORD || '',
-    from: process.env.SMTP_FROM || process.env.IMAP_USER || '',
+    imapHost: readEnv('IMAP_HOST') || 'imap.gmail.com',
+    imapPort: num(readEnv('IMAP_PORT'), 993),
+    imapSecure: bool(readEnv('IMAP_SECURE'), true),
+    imapUser: readEnv('IMAP_USER') || '',
+    imapPass: readEnv('IMAP_PASSWORD') || '',
+    smtpHost: readEnv('SMTP_HOST') || 'smtp.gmail.com',
+    smtpPort: num(readEnv('SMTP_PORT'), 465),
+    smtpSecure: bool(readEnv('SMTP_SECURE'), true),
+    smtpUser: readEnv('SMTP_USER') || readEnv('IMAP_USER') || '',
+    smtpPass: readEnv('SMTP_PASSWORD') || readEnv('IMAP_PASSWORD') || '',
+    from: readEnv('SMTP_FROM') || readEnv('IMAP_USER') || '',
   };
 }
 

@@ -1,4 +1,4 @@
-import { setEdgeOneMode, setKvBinding } from './config.js';
+import { setEdgeOneMode, setEnvOverlay, setKvBinding } from './config.js';
 import { createInMemoryClient } from './mcp-server.js';
 import { createWebApp } from './api-app.js';
 import { handleMcpRequest } from './mcp-http.js';
@@ -12,32 +12,18 @@ import { handleMcpRequest } from './mcp-http.js';
    - File tĩnh được phục vụ bằng cách re-fetch URL (như template gốc)
    ═══════════════════════════════════════════════════════════ */
 
-/**
- * EdgeOne Pages đưa biến môi trường vào `context.env`, KHÔNG phải `process.env`.
- * Phải copy sang process.env trước khi config.ts đọc (envConfig dùng process.env).
- */
-function injectEnvIntoProcess(env: Record<string, any>): void {
-  const proc = (globalThis as any).process as
-    | { env?: Record<string, string | undefined> }
-    | undefined;
-  if (!proc?.env) return;
-  for (const [k, v] of Object.entries(env)) {
-    // Chỉ copy giá trị string (bỏ qua bindings như my_kv, object…), không ghi đè
-    if (typeof v === 'string' && proc.env[k] === undefined) {
-      proc.env[k] = v;
-    }
-  }
-}
-
 export async function emailOnRequest(context: {
   request: Request;
   params: Record<string, string>;
   env: Record<string, any>;
 }): Promise<Response> {
-  // Chế độ EdgeOne: ưu tiên biến môi trường; KV chỉ dùng nếu có binding
+  // Chế độ EdgeOne: ưu tiên biến môi trường; KV chỉ dùng nếu có binding.
+  // EdgeOne Pages đưa biến môi trường vào `context.env` (KHÔNG phải process.env
+  // — trên edge runtime process.env có thể không tồn tại hoặc read-only), nên
+  // nạp trực tiếp vào overlay để envConfig() đọc được.
   setEdgeOneMode(true);
   setKvBinding(context.env?.my_kv || null);
-  injectEnvIntoProcess(context.env || {});
+  setEnvOverlay(context.env);
 
   // Endpoint MCP Streamable HTTP — cho MCP client kết nối từ xa
   const url = new URL(context.request.url);
