@@ -20,6 +20,9 @@ node_modules/
 .env.production
 .dev.vars
 
+# local email settings (IMAP/SMTP credentials)
+.mail-settings.json
+
 # logs
 logs/
 *.log

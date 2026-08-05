@@ -1,307 +1,136 @@
-# EdgeOne Pages Hono Application
+# ✉️ Mail MCP — Xem & Gửi Email qua MCP Server
 
-This is a modern Web application built on the [Hono](https://hono.dev/) framework, deployed on the EdgeOne Pages platform.
+Ứng dụng email đầy đủ: **MCP server** (chuẩn [Model Context Protocol](https://modelcontextprotocol.io)) để xem/gửi email qua IMAP/SMTP + **Web UI** hiện đại để dùng trên trình duyệt. Web UI gọi **MCP server qua in-memory MCP client**, và cùng MCP server đó có thể kết nối với Claude Desktop, VS Code Copilot, hay bất kỳ MCP client nào qua stdio.
 
-Live demo: https://hono-template.edgeone.app
+## ✨ Tính năng
 
-## Deploy
+### MCP Server (6 tools)
+| Tool | Mô tả |
+|---|---|
+| `list_emails` | Liệt kê email (thư mục, giới hạn, từ ngày) kèm đoạn trích nội dung |
+| `read_email` | Đọc chi tiết email: text/HTML, CC/BCC, danh sách file đính kèm |
+| `search_emails` | Tìm kiếm theo người gửi / người nhận / tiêu đề / nội dung |
+| `send_email` | Gửi email qua SMTP (To/Cc/Bcc, HTML, đính kèm base64) |
+| `get_attachment` | Tải nội dung file đính kèm (base64) |
+| `get_account_info` | Thông tin tài khoản + danh sách thư mục & số chưa đọc |
+| `mark_email_read` | Đánh dấu đã đọc / chưa đọc |
 
-[![Deploy with EdgeOne Pages](https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg)](https://edgeone.ai/pages/new?from=github&template=hono)
+### Web UI (Vietnamese)
+- 📥 **Inbox** 3 cột: thư mục + danh sách email + khung đọc, dark/light mode tự động
+- 📖 **Đọc email**: render HTML an toàn (sanitize XSS), text/plain, tải file đính kèm
+- ✍️ **Soạn email**: editor định dạng (B/I/U/list/trích dẫn/link), đính kèm file, reply/reply-all/forward
+- 🔍 **Tìm kiếm** với debounce, đánh dấu đã đọc tự động
+- ⚙️ **Cài đặt tài khoản** trực quan trên UI + kiểm tra kết nối
 
-## 🚀 Project Features
+## 🚀 Cài đặt
 
-- **Modular Route Design** - Clear route organization structure
-- **Server-Side Rendering** - Page rendering using JSX and HTML templates
-- **File Upload** - File upload functionality support
-- **Book Management** - Example CRUD operations
-- **Error Handling** - Beautiful 404 and 500 error pages
-- **TypeScript Support** - Complete type definitions
-
-## 📁 Project Structure
-
-```
-functions/
-├── index.tsx              # Main entry file
-├── [[default]].ts         # EdgeOne Functions default route
-├── env.ts                 # Environment type definitions
-├── components/            # Components directory
-│   └── Layout.tsx         # Page layout component
-└── routers/              # Route modules
-    ├── index.ts          # Unified route exports
-    ├── book.tsx          # Book related routes
-    ├── ssr.tsx           # Server-side rendering routes
-    └── upload.ts         # File upload routes
-```
-
-## 🛣️ Route Details
-
-### Static Routes
-
-| Path | Method | Description |
-|------|------|------|
-| `/` | GET | Static home page, serves `index.html` from public directory |
-
-**Examples:**
-- `https://hono.edgeone.app/` - Static home page
-
-### SSR Routes (`/ssr`)
-
-| Path | Method | Description |
-|------|------|------|
-| `/ssr/:name` | GET | Dynamic SSR page, displays personalized welcome message |
-
-**Examples:**
-- `https://hono.edgeone.app/ssr/john` - Shows "Hello john!" page
-
-### Book Management Routes (`/book`)
-
-| Path | Method | Description |
-|------|------|------|
-| `/book` | GET | Get all books list page |
-| `/book/:id` | GET | Get specific book details page |
-| `/book` | POST | Create new book (API endpoint) |
-
-**Examples:**
-- `https://hono.edgeone.app/book` - Book list
-- `https://hono.edgeone.app/book/1` - Details of the first book
-
-**Create Book API Request Example:**
 ```bash
-curl -X POST https://hono.edgeone.app/book \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "New Book Title",
-    "author": "Author Name"
-  }'
+npm install
+npm run build
 ```
 
-**Supported Features:**
-- CORS cross-origin support
+## ▶️ Chạy
 
-### File Upload Routes (`/upload`)
+### 1. Web UI (kèm MCP server nội bộ)
 
-| Path | Method | Description |
-|------|------|------|
-| `/upload` | POST | File upload endpoint |
-
-**Example:**
 ```bash
-curl -X POST https://hono.edgeone.app/upload \
-  -F "file=@example.txt"
+npm start            # hoặc: npm run dev (hot reload)
+# Mở http://localhost:3000 — lần đầu sẽ tự mở hộp thoại cấu hình tài khoản
 ```
 
-## 📖 Detailed API Documentation
+### 2. MCP server qua stdio (cho Claude Desktop, VS Code Copilot…)
 
-### Basic Information
-
-- **Base URL**: `https://hono.edgeone.app`
-- **Content-Type**: `application/json`
-- **Encoding**: UTF-8
-
-### API Details
-
-#### 1. File Upload
-
-**Endpoint**: `POST /upload`
-
-**Description**: Upload files to server
-
-**Request Format**: `multipart/form-data`
-
-**Request Parameters**:
-- `file` (required): File to upload
-
-**curl Request Examples**:
 ```bash
-# Upload text file
-curl -X POST https://hono.edgeone.app/upload \
-  -F "file=@/path/to/your/file.txt"
-
-# Upload image file
-curl -X POST https://hono.edgeone.app/upload \
-  -F "file=@/path/to/image.jpg"
-
-# Upload with custom filename
-curl -X POST https://hono.edgeone.app/upload \
-  -F "file=@document.pdf;filename=my-document.pdf"
+npm run mcp          # hoặc: node dist/index.js
 ```
 
-**Response Example**:
+Ví dụ cấu hình `claude_desktop_config.json`:
+
 ```json
 {
-  "success": true,
-  "message": "File uploaded successfully",
-  "fileName": "file.txt"
-}
-```
-
-**Error Response**:
-```json
-{
-  "success": false,
-  "message": "No file provided"
-}
-```
-
-#### 2. Create Book
-
-**Endpoint**: `POST /book`
-
-**Description**: Create new book record
-
-**Request Parameters**:
-```json
-{
-  "title": "Book Title",
-  "author": "Author Name"
-}
-```
-
-**Parameter Description**:
-- `title` (optional): Book title, defaults to "Untitled"
-- `author` (optional): Author name, defaults to "Unknown"
-
-**curl Request Examples**:
-```bash
-# Create book with complete information
-curl -X POST https://hono.edgeone.app/book \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Dream of the Red Chamber",
-    "author": "Cao Xueqin"
-  }'
-
-# Create book with only title
-curl -X POST https://hono.edgeone.app/book \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "New Book Title"
-  }'
-
-# Create empty book (using defaults)
-curl -X POST https://hono.edgeone.app/book \
-  -H "Content-Type: application/json" \
-  -d '{}'
-```
-
-**Response Example**:
-```json
-{
-  "success": true,
-  "message": "Book created successfully",
-  "book": {
-    "id": "abc123def",
-    "title": "Book Title",
-    "author": "Author Name",
-    "createdAt": "2023-12-01T10:00:00.000Z"
+  "mcpServers": {
+    "email-mcp": {
+      "command": "node",
+      "args": ["/duong/dan/tuyet-doi/to/email-mcp/dist/index.js"]
+    }
   }
 }
 ```
 
-#### 3. Get Book Information
+Hoặc cài toàn cục: `npm link` rồi dùng `mcp-email`.
 
-**curl Request Examples**:
-```bash
-# Get all books list
-curl -X GET https://hono.edgeone.app/book
+## ⚙️ Cấu hình tài khoản
 
-# Get specific book details
-curl -X GET https://hono.edgeone.app/book/1
+Có 2 cách (cách sau ghi đè cách trước):
 
-# Get personal page
-curl -X GET https://hono.edgeone.app/john
-```
+1. **File `.env`** — copy từ `.env.example` và điền thông tin
+2. **Web UI → Cài đặt** — lưu vào settings store (xem bên dưới)
 
-### Error Code Description
+| Biến | Mô tả | Mặc định |
+|---|---|---|
+| `IMAP_HOST` / `IMAP_PORT` / `IMAP_SECURE` | Máy chủ IMAP | imap.gmail.com / 993 / true |
+| `IMAP_USER` / `IMAP_PASSWORD` | Tài khoản IMAP | — |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | Máy chủ SMTP | smtp.gmail.com / 465 / true |
+| `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | Tài khoản SMTP & địa chỉ From | = IMAP |
+| `PORT` | Cổng Web UI | 3000 |
+| `SETTINGS_FILE` | Đường dẫn file cài đặt (Node) | .mail-settings.json |
 
-| Error Code | HTTP Status Code | Description |
-|-----------|-------------|------|
-| `VALIDATION_ERROR` | 400 | Request parameter validation failed |
-| `FILE_UPLOAD_ERROR` | 400 | File upload failed |
-| `NOT_FOUND` | 404 | Resource not found |
-| `INTERNAL_ERROR` | 500 | Internal server error |
+> 💡 **Gmail**: bật *2 bước xác minh* rồi tạo *App password* tại myaccount.google.com/apppasswords — không dùng mật khẩu đăng nhập thường.
 
-### Rate Limiting
+### Nơi lưu cài đặt (settings store) — tự chọn backend
 
-- All API endpoints currently have no rate limiting
-- Client-side request frequency control is recommended
+`src/config.ts` tự động chọn nơi lưu theo môi trường chạy:
 
-### CORS Support
+| Môi trường | Backend | Chi tiết |
+|---|---|---|
+| **Node.js local / MCP stdio** | File `fs` | `.mail-settings.json` trong thư mục dự án (đổi qua `SETTINGS_FILE`) |
+| **EdgeOne Pages** | **KV binding `my_kv`** | Key `mail-mcp:settings` — không cần filesystem |
 
-All API endpoints support cross-origin access, response headers include:
-- `Access-Control-Allow-Origin: *`
-- `Access-Control-Allow-Methods: POST, GET, OPTIONS`
-- `Access-Control-Allow-Headers: Content-Type, Authorization`
+EdgeOne không cho ghi filesystem nên khi chạy trên EdgeOne, cấu hình KV binding `my_kv` trong dashboard EdgeOne Pages → cài đặt lưu vào KV, tự động dùng khi deploy. Chạy local thì dùng file như cũ — không cần đổi code.
 
-## 🔧 Development
-
-### Local Development
+## 🚀 Deploy lên EdgeOne Pages
 
 ```bash
-# Install dependencies
-npm install
-
-# Start development server
-edgeone pages dev
+npm run deploy        # EdgeOne Pages (đã có sẵn cấu hình deploy)
 ```
 
+1. Tạo **KV namespace** trong bảng điều khiển EdgeOne và bind tên `my_kv` vào Pages project
+2. Deploy: thư mục `functions/` là entry EdgeOne (`functions/index.tsx` gọi `src/edgeone.ts`), `public/` là file tĩnh
+3. Cài đặt tài khoản nhập qua Web UI sẽ lưu vào KV; hoặc đặt env vars trên dashboard
 
-## 🌐 Environment Variables
 
-The project uses the following environment variables and global objects:
+## 🗂️ Cấu trúc dự án
 
-- `my_kv` - KV storage instance for data persistence
-
-## 🛡️ Security Features
-
-### IP Restriction (Optional)
-
-The project includes IP restriction middleware configuration (commented by default), which can limit access sources:
-
-```typescript
-app.use('*', ipRestriction(/* configuration */));
+```
+src/
+├── config.ts          # Cấu hình env + settings store (tự chọn fs/KV) + mask mật khẩu
+├── storage.ts         # Tầng lưu trữ: backend KV (EdgeOne) + backend file (Node)
+├── email-service.ts   # Lõi IMAP (imapflow) + SMTP (nodemailer)
+├── mcp-server.ts      # MCP server: 7 tools, stdio + in-memory client
+├── api-app.ts         # Hono REST API (không phụ thuộc Node — chạy được trên EdgeOne)
+├── web-server.ts      # Node web server: SPA + serve static (chỉ dùng local)
+├── edgeone.ts         # Entry EdgeOne Functions: KV binding + phục vụ file tĩnh
+└── index.ts           # CLI: `mcp-email` (stdio) | `mcp-email web` (port 3000)
+public/                # Web UI: index.html + style.css + app.js
+functions/             # EdgeOne Pages entry: index.tsx → src/edgeone.ts
 ```
 
-## 📝 API Response Format
+## 🔌 API Web (REST)
 
-### Success Response
+| Endpoint | Mô tả |
+|---|---|
+| `GET /api/health` | Kiểm tra MCP server |
+| `GET /api/account` | Tài khoản + thư mục |
+| `GET /api/emails?folder=&limit=` | Danh sách email |
+| `GET /api/emails/:uid?folder=` | Chi tiết email |
+| `GET /api/emails/:uid/attachment/:partId` | Tải file đính kèm |
+| `POST /api/emails/:uid/read` | Đánh dấu đã đọc |
+| `GET /api/search?q=&folder=` | Tìm kiếm |
+| `POST /api/send` | Gửi email |
+| `GET/POST /api/settings` | Xem / lưu cài đặt (mật khẩu được mask) |
 
-```json
-{
-  "success": true,
-  "message": "Operation successful",
-  "data": {}
-}
-```
+## 🔐 Bảo mật
 
-### Error Response
-
-```json
-{
-  "error": "ERROR_CODE",
-  "message": "Error description"
-}
-```
-
-## 🎨 UI Design
-
-The project adopts modern UI design:
-- Responsive layout
-- System font stack
-- Card-style design
-- Unified color theme
-- Elegant error pages
-
-## 📦 Dependencies
-
-- **hono** - Web framework
-- **@edgeone/ef-types** - EdgeOne Functions type definitions
-- **edgeone** - EdgeOne CLI tool
-
-## 🤝 Contributing
-
-Welcome to submit Issues and Pull Requests to improve this project.
-
-## 📄 License
-
-MIT License
+- Mật khẩu được **mask** khi trả về API (`********`)
+- HTML email được **sanitize** (chặn script, iframe, `on*`, `javascript:`…) trước khi render
+- File `.mail-settings.json` và `.env` đã được gitignore — mật khẩu lưu dạng văn bản thuần, chỉ dùng cho máy cá nhân; trên EdgeOne cài đặt nằm trong KV `my_kv` (được bảo vệ bởi quyền truy cập platform)

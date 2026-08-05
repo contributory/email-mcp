@@ -1,18 +1,37 @@
 {
-  "name": "edgeone-pages-hono-app",
+  "name": "email-mcp",
+  "version": "1.0.0",
+  "description": "Email MCP server (IMAP/SMTP) + Web UI để xem và gửi email qua MCP",
+  "bin": {
+    "mcp-email": "./dist/index.js"
+  },
   "scripts": {
-    "deploy": "rm -rf ./node_modules && edgeone pages deploy ./ -n edgeone-hono-app -t ",
+    "dev": "tsx watch src/index.ts web",
+    "dev:mcp": "tsx src/index.ts",
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 tsc",
+    "start": "node dist/index.js web",
+    "mcp": "node dist/index.js",
     "sync-docs": "node scripts/sync-docs.js",
-    "build": "npm run sync-docs"
+    "deploy": "rm -rf ./node_modules && edgeone pages deploy ./ -n edgeone-hono-app -t "
   },
   "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "dotenv": "^16.4.7",
     "highlight.js": "^11.11.1",
     "hono": "^4.7.10",
+    "imapflow": "^1.0.194",
     "marked": "^15.0.12",
-    "marked-highlight": "^2.2.1"
+    "marked-highlight": "^2.2.1",
+    "nodemailer": "^6.10.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@edgeone/ef-types": "^1.0.5",
-    "edgeone": "^1.0.21"
+    "@types/node": "^22.10.2",
+    "@types/nodemailer": "^6.4.17",
+    "edgeone": "^1.0.21",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

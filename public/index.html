@@ -1,345 +1,232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EdgeOne Pages Hono Application</title>
-    <link rel="stylesheet" href="./style.css">
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <title>Mail MCP — Xem & Gửi Email</title>
+    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>EdgeOne Pages Hono Application</h1>
-<p>This is a modern Web application built on the <a href="https://hono.dev/" target="_blank" rel="noopener noreferrer">Hono</a> framework, deployed on the EdgeOne Pages platform.</p>
-<p>Live demo: <a href="https://hono.edgeone.app" target="_blank" rel="noopener noreferrer">https://hono.edgeone.app</a></p>
-<h2>Deploy</h2>
-<p><a href="https://edgeone.ai/pages/new?from=github&template=hono" target="_blank" rel="noopener noreferrer"><img src="https://cdnstatic.tencentcs.com/edgeone/pages/deploy.svg" alt="Deploy with EdgeOne Pages" /></a></p>
-<h2>🚀 Project Features</h2>
-<ul>
-<li><strong>Modular Route Design</strong> - Clear route organization structure</li>
-<li><strong>Server-Side Rendering</strong> - Page rendering using JSX and HTML templates</li>
-<li><strong>File Upload</strong> - File upload functionality support</li>
-<li><strong>Book Management</strong> - Example CRUD operations</li>
-<li><strong>Error Handling</strong> - Beautiful 404 and 500 error pages</li>
-<li><strong>TypeScript Support</strong> - Complete type definitions</li>
-</ul>
-<h2>📁 Project Structure</h2>
-<pre><code>functions/
-├── index.tsx              # Main entry file
-├── [[default]].ts         # EdgeOne Functions default route
-├── env.ts                 # Environment type definitions
-├── components/            # Components directory
-│   └── Layout.tsx         # Page layout component
-└── routers/              # Route modules
-    ├── index.ts          # Unified route exports
-    ├── book.tsx          # Book related routes
-    ├── ssr.tsx           # Server-side rendering routes
-    └── upload.ts         # File upload routes
-</code></pre>
-<h2>🛣️ Route Details</h2>
-<h3>Static Routes</h3>
-<table>
-<thead>
-<tr>
-<th>Path</th>
-<th>Method</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>/</code></td>
-<td>GET</td>
-<td>Static home page, serves <code>index.html</code> from public directory</td>
-</tr>
-</tbody></table>
-<p><strong>Examples:</strong></p>
-<ul>
-<li><code>https://hono.edgeone.app/</code> - Static home page</li>
-</ul>
-<h3>SSR Routes (<code>/ssr</code>)</h3>
-<table>
-<thead>
-<tr>
-<th>Path</th>
-<th>Method</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>/ssr/:name</code></td>
-<td>GET</td>
-<td>Dynamic SSR page, displays personalized welcome message</td>
-</tr>
-</tbody></table>
-<p><strong>Examples:</strong></p>
-<ul>
-<li><code>https://hono.edgeone.app/ssr/john</code> - Shows &quot;Hello john!&quot; page</li>
-</ul>
-<h3>Book Management Routes (<code>/book</code>)</h3>
-<table>
-<thead>
-<tr>
-<th>Path</th>
-<th>Method</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>/book</code></td>
-<td>GET</td>
-<td>Get all books list page</td>
-</tr>
-<tr>
-<td><code>/book/:id</code></td>
-<td>GET</td>
-<td>Get specific book details page</td>
-</tr>
-<tr>
-<td><code>/book</code></td>
-<td>POST</td>
-<td>Create new book (API endpoint)</td>
-</tr>
-</tbody></table>
-<p><strong>Examples:</strong></p>
-<ul>
-<li><code>https://hono.edgeone.app/book</code> - Book list</li>
-<li><code>https://hono.edgeone.app/book/1</code> - Details of the first book</li>
-</ul>
-<p><strong>Create Book API Request Example:</strong></p>
-<pre><code class="language-bash">curl -X POST https://hono.edgeone.app/book \
-  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
-  -d <span class="hljs-string">&#x27;{
-    &quot;title&quot;: &quot;New Book Title&quot;,
-    &quot;author&quot;: &quot;Author Name&quot;
-  }&#x27;</span>
-</code></pre>
-<p><strong>Supported Features:</strong></p>
-<ul>
-<li>CORS cross-origin support</li>
-</ul>
-<h3>File Upload Routes (<code>/upload</code>)</h3>
-<table>
-<thead>
-<tr>
-<th>Path</th>
-<th>Method</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>/upload</code></td>
-<td>POST</td>
-<td>File upload endpoint</td>
-</tr>
-</tbody></table>
-<p><strong>Example:</strong></p>
-<pre><code class="language-bash">curl -X POST https://hono.edgeone.app/upload \
-  -F <span class="hljs-string">&quot;file=@example.txt&quot;</span>
-</code></pre>
-<h2>📖 Detailed API Documentation</h2>
-<h3>Basic Information</h3>
-<ul>
-<li><strong>Base URL</strong>: <code>https://hono.edgeone.app</code></li>
-<li><strong>Content-Type</strong>: <code>application/json</code></li>
-<li><strong>Encoding</strong>: UTF-8</li>
-</ul>
-<h3>API Details</h3>
-<h4>1. File Upload</h4>
-<p><strong>Endpoint</strong>: <code>POST /upload</code></p>
-<p><strong>Description</strong>: Upload files to server</p>
-<p><strong>Request Format</strong>: <code>multipart/form-data</code></p>
-<p><strong>Request Parameters</strong>:</p>
-<ul>
-<li><code>file</code> (required): File to upload</li>
-</ul>
-<p><strong>curl Request Examples</strong>:</p>
-<pre><code class="language-bash"><span class="hljs-comment"># Upload text file</span>
-curl -X POST https://hono.edgeone.app/upload \
-  -F <span class="hljs-string">&quot;file=@/path/to/your/file.txt&quot;</span>
+    <div id="app">
+      <!-- ═════════════ SIDEBAR ═════════════ -->
+      <aside id="sidebar">
+        <div class="brand">
+          <div class="brand-logo">✉️</div>
+          <div class="brand-text">
+            <h1>Mail MCP</h1>
+            <p>Email qua MCP server</p>
+          </div>
+        </div>
 
-<span class="hljs-comment"># Upload image file</span>
-curl -X POST https://hono.edgeone.app/upload \
-  -F <span class="hljs-string">&quot;file=@/path/to/image.jpg&quot;</span>
+        <button id="composeBtn" class="btn btn-primary btn-compose">
+          <span class="btn-icon">＋</span> Soạn email
+        </button>
 
-<span class="hljs-comment"># Upload with custom filename</span>
-curl -X POST https://hono.edgeone.app/upload \
-  -F <span class="hljs-string">&quot;file=@document.pdf;filename=my-document.pdf&quot;</span>
-</code></pre>
-<p><strong>Response Example</strong>:</p>
-<pre><code class="language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">&quot;success&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;message&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;File uploaded successfully&quot;</span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;fileName&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;file.txt&quot;</span>
-<span class="hljs-punctuation">}</span>
-</code></pre>
-<p><strong>Error Response</strong>:</p>
-<pre><code class="language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">&quot;success&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;message&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;No file provided&quot;</span>
-<span class="hljs-punctuation">}</span>
-</code></pre>
-<h4>2. Create Book</h4>
-<p><strong>Endpoint</strong>: <code>POST /book</code></p>
-<p><strong>Description</strong>: Create new book record</p>
-<p><strong>Request Parameters</strong>:</p>
-<pre><code class="language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">&quot;title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Book Title&quot;</span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;author&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Author Name&quot;</span>
-<span class="hljs-punctuation">}</span>
-</code></pre>
-<p><strong>Parameter Description</strong>:</p>
-<ul>
-<li><code>title</code> (optional): Book title, defaults to &quot;Untitled&quot;</li>
-<li><code>author</code> (optional): Author name, defaults to &quot;Unknown&quot;</li>
-</ul>
-<p><strong>curl Request Examples</strong>:</p>
-<pre><code class="language-bash"><span class="hljs-comment"># Create book with complete information</span>
-curl -X POST https://hono.edgeone.app/book \
-  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
-  -d <span class="hljs-string">&#x27;{
-    &quot;title&quot;: &quot;Dream of the Red Chamber&quot;,
-    &quot;author&quot;: &quot;Cao Xueqin&quot;
-  }&#x27;</span>
+        <div id="accountCard" class="card account-card">
+          <div class="account-avatar" id="accountAvatar">—</div>
+          <div class="account-info">
+            <strong id="accountName">Chưa cấu hình</strong>
+            <span id="accountHost" class="muted small">…</span>
+          </div>
+        </div>
 
-<span class="hljs-comment"># Create book with only title</span>
-curl -X POST https://hono.edgeone.app/book \
-  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
-  -d <span class="hljs-string">&#x27;{
-    &quot;title&quot;: &quot;New Book Title&quot;
-  }&#x27;</span>
+        <nav id="folderList" class="folder-list" aria-label="Thư mục"></nav>
 
-<span class="hljs-comment"># Create empty book (using defaults)</span>
-curl -X POST https://hono.edgeone.app/book \
-  -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> \
-  -d <span class="hljs-string">&#x27;{}&#x27;</span>
-</code></pre>
-<p><strong>Response Example</strong>:</p>
-<pre><code class="language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">&quot;success&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;message&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Book created successfully&quot;</span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;book&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
-    <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;abc123def&quot;</span><span class="hljs-punctuation">,</span>
-    <span class="hljs-attr">&quot;title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Book Title&quot;</span><span class="hljs-punctuation">,</span>
-    <span class="hljs-attr">&quot;author&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Author Name&quot;</span><span class="hljs-punctuation">,</span>
-    <span class="hljs-attr">&quot;createdAt&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2023-12-01T10:00:00.000Z&quot;</span>
-  <span class="hljs-punctuation">}</span>
-<span class="hljs-punctuation">}</span>
-</code></pre>
-<h4>3. Get Book Information</h4>
-<p><strong>curl Request Examples</strong>:</p>
-<pre><code class="language-bash"><span class="hljs-comment"># Get all books list</span>
-curl -X GET https://hono.edgeone.app/book
+        <div class="sidebar-footer">
+          <button id="refreshBtn" class="btn btn-ghost" title="Làm mới">
+            <span class="btn-icon">↻</span> Làm mới
+          </button>
+          <button id="settingsBtn" class="btn btn-ghost" title="Cài đặt tài khoản">
+            <span class="btn-icon">⚙</span> Cài đặt
+          </button>
+        </div>
+        <div id="mcpBadge" class="mcp-badge" title="Trạng thái kết nối MCP">
+          <span class="dot"></span> MCP đang kết nối
+        </div>
+      </aside>
 
-<span class="hljs-comment"># Get specific book details</span>
-curl -X GET https://hono.edgeone.app/book/1
+      <!-- ═════════════ LIST PANE ═════════════ -->
+      <section id="listPane">
+        <div class="list-toolbar">
+          <button id="backBtn" class="btn btn-ghost mobile-only" title="Quay lại">←</button>
+          <h2 id="folderTitle">Hộp thư đến</h2>
+          <span id="emailCount" class="muted small"></span>
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Tìm email…"
+              autocomplete="off"
+            />
+          </div>
+        </div>
 
-<span class="hljs-comment"># Get personal page</span>
-curl -X GET https://hono.edgeone.app/john
-</code></pre>
-<h3>Error Code Description</h3>
-<table>
-<thead>
-<tr>
-<th>Error Code</th>
-<th>HTTP Status Code</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>VALIDATION_ERROR</code></td>
-<td>400</td>
-<td>Request parameter validation failed</td>
-</tr>
-<tr>
-<td><code>FILE_UPLOAD_ERROR</code></td>
-<td>400</td>
-<td>File upload failed</td>
-</tr>
-<tr>
-<td><code>NOT_FOUND</code></td>
-<td>404</td>
-<td>Resource not found</td>
-</tr>
-<tr>
-<td><code>INTERNAL_ERROR</code></td>
-<td>500</td>
-<td>Internal server error</td>
-</tr>
-</tbody></table>
-<h3>Rate Limiting</h3>
-<ul>
-<li>All API endpoints currently have no rate limiting</li>
-<li>Client-side request frequency control is recommended</li>
-</ul>
-<h3>CORS Support</h3>
-<p>All API endpoints support cross-origin access, response headers include:</p>
-<ul>
-<li><code>Access-Control-Allow-Origin: *</code></li>
-<li><code>Access-Control-Allow-Methods: POST, GET, OPTIONS</code></li>
-<li><code>Access-Control-Allow-Headers: Content-Type, Authorization</code></li>
-</ul>
-<h2>🔧 Development</h2>
-<h3>Local Development</h3>
-<pre><code class="language-bash"><span class="hljs-comment"># Install dependencies</span>
-npm install
+        <div id="setupBanner" class="setup-banner hidden">
+          <div>
+            <strong>Chưa có cấu hình email</strong>
+            <p class="muted small">
+              Mở Cài đặt để nhập máy chủ IMAP/SMTP (Gmail, Outlook, Zoho…)
+            </p>
+          </div>
+          <button id="setupBtn" class="btn btn-primary">Cấu hình ngay</button>
+        </div>
 
-<span class="hljs-comment"># Start development server</span>
-npm run dev
-</code></pre>
-<h3>Deployment</h3>
-<pre><code class="language-bash"><span class="hljs-comment"># Deploy to EdgeOne</span>
-npm run deploy
-</code></pre>
-<h2>🌐 Environment Variables</h2>
-<p>The project uses the following environment variables and global objects:</p>
-<ul>
-<li><code>my_kv</code> - KV storage instance for data persistence</li>
-</ul>
-<h2>🛡️ Security Features</h2>
-<h3>IP Restriction (Optional)</h3>
-<p>The project includes IP restriction middleware configuration (commented by default), which can limit access sources:</p>
-<pre><code class="language-typescript">app.<span class="hljs-title function_">use</span>(<span class="hljs-string">&#x27;*&#x27;</span>, <span class="hljs-title function_">ipRestriction</span>(<span class="hljs-comment">/* configuration */</span>));
-</code></pre>
-<h2>📝 API Response Format</h2>
-<h3>Success Response</h3>
-<pre><code class="language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">&quot;success&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;message&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Operation successful&quot;</span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span>
-<span class="hljs-punctuation">}</span>
-</code></pre>
-<h3>Error Response</h3>
-<pre><code class="language-json"><span class="hljs-punctuation">{</span>
-  <span class="hljs-attr">&quot;error&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ERROR_CODE&quot;</span><span class="hljs-punctuation">,</span>
-  <span class="hljs-attr">&quot;message&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Error description&quot;</span>
-<span class="hljs-punctuation">}</span>
-</code></pre>
-<h2>🎨 UI Design</h2>
-<p>The project adopts modern UI design:</p>
-<ul>
-<li>Responsive layout</li>
-<li>System font stack</li>
-<li>Card-style design</li>
-<li>Unified color theme</li>
-<li>Elegant error pages</li>
-</ul>
-<h2>📦 Dependencies</h2>
-<ul>
-<li><strong>hono</strong> - Web framework</li>
-<li><strong>@edgeone/ef-types</strong> - EdgeOne Functions type definitions</li>
-<li><strong>edgeone</strong> - EdgeOne CLI tool</li>
-</ul>
-<h2>🤝 Contributing</h2>
-<p>Welcome to submit Issues and Pull Requests to improve this project.</p>
-<h2>📄 License</h2>
-<p>MIT License</p>
+        <div id="emailList" class="email-list"></div>
+        <div id="listEmpty" class="empty hidden">Chưa có email nào</div>
+        <div id="listLoading" class="empty loading">Đang tải…</div>
+      </section>
 
-      
-      <div class="highlight-box">
-        <h3>📝 Development Notes</h3>
-        <p>This is a complete example application demonstrating various features and best practices of the Hono framework on EdgeOne Functions.</p>
-        <p>The project structure is clear, code is well organized, and suitable as a starting template for other projects.</p>
+      <!-- ═════════════ READER PANE ═════════════ -->
+      <section id="readerPane">
+        <div id="readerEmpty" class="empty">Chọn một email để đọc nội dung</div>
+        <div id="readerContent" class="hidden"></div>
+      </section>
+    </div>
+
+    <!-- ═════════════ COMPOSE MODAL ═════════════ -->
+    <div id="composeModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-backdrop" data-close-modal="composeModal"></div>
+      <div class="modal-panel compose-panel">
+        <header class="modal-header">
+          <h3 id="composeTitle">Soạn email</h3>
+          <button class="btn btn-icon-btn" data-close-modal="composeModal" title="Đóng">✕</button>
+        </header>
+
+        <div class="compose-body">
+          <div class="field-row">
+            <label for="toInput">Tới</label>
+            <input id="toInput" type="text" placeholder="nguoinhan@email.com, …" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label for="ccInput">Cc</label>
+            <input id="ccInput" type="text" placeholder="cc@email.com (tùy chọn)" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label for="bccInput">Bcc</label>
+            <input id="bccInput" type="text" placeholder="bcc@email.com (tùy chọn)" autocomplete="off" />
+          </div>
+          <div class="field-row">
+            <label for="subjectInput">Tiêu đề</label>
+            <input id="subjectInput" type="text" placeholder="Tiêu đề email" autocomplete="off" />
+          </div>
+
+          <div class="editor-toolbar" id="editorToolbar">
+            <button type="button" data-cmd="bold" title="Đậm"><b>B</b></button>
+            <button type="button" data-cmd="italic" title="Nghiêng"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="Gạch chân"><u>U</u></button>
+            <button type="button" data-cmd="strikeThrough" title="Gạch ngang"><s>S</s></button>
+            <span class="toolbar-sep"></span>
+            <button type="button" data-cmd="insertUnorderedList" title="Danh sách">•≡</button>
+            <button type="button" data-cmd="insertOrderedList" title="Danh sách số">1≡</button>
+            <button type="button" data-cmd="formatBlock" data-value="blockquote" title="Trích dẫn">❝</button>
+            <button type="button" data-cmd="link" title="Chèn liên kết">🔗</button>
+            <button type="button" data-cmd="removeFormat" title="Xóa định dạng">Tx</button>
+          </div>
+          <div
+            id="composeBody"
+            class="compose-editor"
+            contenteditable="true"
+            data-placeholder="Nội dung email…"
+          ></div>
+        </div>
+
+        <div id="attachList" class="attach-list hidden"></div>
+
+        <footer class="modal-footer">
+          <button id="attachBtn" class="btn btn-ghost" title="Đính kèm file">📎 Đính kèm</button>
+          <input id="attachInput" type="file" multiple class="hidden" />
+          <div class="footer-spacer"></div>
+          <button class="btn btn-ghost" data-close-modal="composeModal">Hủy</button>
+          <button id="sendBtn" class="btn btn-primary">
+            <span id="sendBtnLabel">Gửi</span>
+          </button>
+        </footer>
       </div>
     </div>
+
+    <!-- ═════════════ SETTINGS MODAL ═════════════ -->
+    <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-backdrop" data-close-modal="settingsModal"></div>
+      <div class="modal-panel settings-panel">
+        <header class="modal-header">
+          <h3>Cài đặt tài khoản email</h3>
+          <button class="btn btn-icon-btn" data-close-modal="settingsModal" title="Đóng">✕</button>
+        </header>
+
+        <div class="settings-body">
+          <div class="settings-section">
+            <h4>📥 IMAP (nhận email)</h4>
+            <div class="settings-grid">
+              <div class="field-row">
+                <label for="sImapHost">Máy chủ</label>
+                <input id="sImapHost" type="text" placeholder="imap.gmail.com" />
+              </div>
+              <div class="field-row">
+                <label for="sImapPort">Cổng</label>
+                <input id="sImapPort" type="number" placeholder="993" />
+              </div>
+              <div class="field-row">
+                <label for="sImapUser">Tên người dùng</label>
+                <input id="sImapUser" type="text" placeholder="you@gmail.com" autocomplete="off" />
+              </div>
+              <div class="field-row">
+                <label for="sImapPass">Mật khẩu / App password</label>
+                <input id="sImapPass" type="password" placeholder="••••••••" autocomplete="off" />
+              </div>
+              <label class="check-row">
+                <input id="sImapSecure" type="checkbox" checked /> Kết nối bảo mật (SSL/TLS)
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4>📤 SMTP (gửi email)</h4>
+            <div class="settings-grid">
+              <div class="field-row">
+                <label for="sSmtpHost">Máy chủ</label>
+                <input id="sSmtpHost" type="text" placeholder="smtp.gmail.com" />
+              </div>
+              <div class="field-row">
+                <label for="sSmtpPort">Cổng</label>
+                <input id="sSmtpPort" type="number" placeholder="465" />
+              </div>
+              <div class="field-row">
+                <label for="sSmtpUser">Tên người dùng</label>
+                <input id="sSmtpUser" type="text" placeholder="you@gmail.com" autocomplete="off" />
+              </div>
+              <div class="field-row">
+                <label for="sSmtpPass">Mật khẩu / App password</label>
+                <input id="sSmtpPass" type="password" placeholder="••••••••" autocomplete="off" />
+              </div>
+              <div class="field-row">
+                <label for="sFrom">Địa chỉ gửi (From)</label>
+                <input id="sFrom" type="text" placeholder="you@gmail.com" autocomplete="off" />
+              </div>
+              <label class="check-row">
+                <input id="sSmtpSecure" type="checkbox" checked /> Kết nối bảo mật (SSL/TLS)
+              </label>
+            </div>
+          </div>
+
+          <p class="muted small">
+            💡 Với Gmail, hãy bật <strong>2 bước xác minh</strong> và tạo
+            <strong>App password</strong> (myaccount.google.com/apppasswords). Mật khẩu được
+            lưu dưới dạng văn bản thuần trong file <code>.mail-settings.json</code> ở thư mục dự án.
+          </p>
+        </div>
+
+        <footer class="modal-footer">
+          <div class="footer-spacer"></div>
+          <button id="testBtn" class="btn btn-ghost">Kiểm tra kết nối</button>
+          <button id="saveSettingsBtn" class="btn btn-primary">Lưu cài đặt</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ═════════════ TOAST ═════════════ -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="./app.js"></script>
   </body>
 </html>
