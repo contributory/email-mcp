@@ -605,7 +605,7 @@ async function sendCompose() {
 
 async function loadSettingsForm() {
   try {
-    const { config } = await api('/api/settings');
+    const { config, readOnly } = await api('/api/settings');
     $('#sImapHost').value = config.imapHost || '';
     $('#sImapPort').value = config.imapPort || 993;
     $('#sImapSecure').checked = config.imapSecure !== false;
@@ -617,6 +617,11 @@ async function loadSettingsForm() {
     $('#sSmtpUser').value = config.smtpUser || '';
     $('#sSmtpPass').value = config.smtpPass || '';
     $('#sFrom').value = config.from || '';
+
+    // Chế độ chỉ đọc (EdgeOne không có KV → cấu hình qua env vars)
+    $('#envOnlyNote').classList.toggle('hidden', !readOnly);
+    $('#saveSettingsBtn').disabled = !!readOnly;
+    $('#testBtn').disabled = !!readOnly;
   } catch (err) {
     toast(`Không tải được cài đặt: ${err.message}`, 'error');
   }
@@ -744,7 +749,10 @@ function bindEvents() {
   // Mở settings modal tự động nếu chưa cấu hình
   if (!state.account && !localStorage.getItem('mailmcp-hide-setup')) {
     setTimeout(() => {
-      if (!state.account) $('#settingsModal').classList.remove('hidden');
+      if (!state.account) {
+        $('#settingsModal').classList.remove('hidden');
+        loadSettingsForm();
+      }
     }, 800);
   }
 }

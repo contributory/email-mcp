@@ -955,6 +955,22 @@ body {
   font-size: 12px;
 }
 
+.env-only-note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.env-only-note code {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
 /* ═══════════════ Toast ═══════════════ */
 
 .toast {

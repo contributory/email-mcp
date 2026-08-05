@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import {
+  createEnvOnlyStore,
   createFsStore,
   createKvStore,
   type KVLike,
@@ -60,12 +61,24 @@ export function envConfig(): MailConfig {
 
 let kvBinding: KVLike | null = null;
 let storePromise: Promise<SettingsStore> | null = null;
+let edgeOneMode = false;
 
-/** Gọi từ entry EdgeOne để cấp KV binding (context.env.my_kv) */
+/** Gọi từ entry EdgeOne để cấp KV binding (context.env.my_kv) — có thể không có */
 export function setKvBinding(kv: KVLike | null | undefined): void {
   kvBinding = kv || null;
   // Binding có thể thay đổi giữa các request — không cache store cũ
   storePromise = null;
+}
+
+/** Gọi từ entry EdgeOne để báo đang chạy trên edge runtime (không có filesystem) */
+export function setEdgeOneMode(on: boolean): void {
+  edgeOneMode = on;
+  storePromise = null;
+}
+
+/** Trên EdgeOne và không có KV binding → cấu hình chỉ từ biến môi trường */
+export function isEnvOnlyMode(): boolean {
+  return edgeOneMode && !(kvBinding || getGlobalKv());
 }
 
 function getGlobalKv(): KVLike | null {
@@ -76,9 +89,14 @@ function getGlobalKv(): KVLike | null {
 async function getStore(): Promise<SettingsStore> {
   if (!storePromise) {
     const kv = kvBinding || getGlobalKv();
-    storePromise = kv
-      ? Promise.resolve(createKvStore(kv))
-      : createFsStore();
+    if (kv) {
+      storePromise = Promise.resolve(createKvStore(kv));
+    } else if (edgeOneMode) {
+      // EdgeOne không có KV → chỉ dùng biến môi trường (không đụng filesystem)
+      storePromise = Promise.resolve(createEnvOnlyStore());
+    } else {
+      storePromise = createFsStore();
+    }
   }
   return storePromise!;
 }

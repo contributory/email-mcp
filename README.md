@@ -84,9 +84,11 @@ Có 2 cách (cách sau ghi đè cách trước):
 | Môi trường | Backend | Chi tiết |
 |---|---|---|
 | **Node.js local / MCP stdio** | File `fs` | `.mail-settings.json` trong thư mục dự án (đổi qua `SETTINGS_FILE`) |
-| **EdgeOne Pages** | **KV binding `my_kv`** | Key `mail-mcp:settings` — không cần filesystem |
+| **EdgeOne Pages (không có KV)** | **Biến môi trường** | Cấu hình đặt trong dashboard EdgeOne (`IMAP_HOST`, `IMAP_USER`, `IMAP_PASSWORD`…) — không cần filesystem, không cần KV |
+| **EdgeOne Pages (có KV)** | **KV binding `my_kv`** | Key `mail-mcp:settings` — tùy chọn, chỉ cần nếu muốn lưu cài đặt qua Web UI |
 
-EdgeOne không cho ghi filesystem nên khi chạy trên EdgeOne, cấu hình KV binding `my_kv` trong dashboard EdgeOne Pages → cài đặt lưu vào KV, tự động dùng khi deploy. Chạy local thì dùng file như cũ — không cần đổi code.
+Trên EdgeOne không cần KV: Web UI hiển thị form **chỉ đọc** kèm thông báo đặt cấu hình qua
+biến môi trường; mọi nỗ lực lưu qua UI đều trả về hướng dẫn rõ ràng.
 
 ## 🚀 Deploy lên EdgeOne Pages
 
@@ -94,9 +96,11 @@ EdgeOne không cho ghi filesystem nên khi chạy trên EdgeOne, cấu hình KV 
 npm run deploy        # EdgeOne Pages (đã có sẵn cấu hình deploy)
 ```
 
-1. Tạo **KV namespace** trong bảng điều khiển EdgeOne và bind tên `my_kv` vào Pages project
-2. Deploy: thư mục `functions/` là entry EdgeOne (`functions/index.tsx` gọi `src/edgeone.ts`), `public/` là file tĩnh
-3. Cài đặt tài khoản nhập qua Web UI sẽ lưu vào KV; hoặc đặt env vars trên dashboard
+1. Trong bảng điều khiển EdgeOne Pages → Settings, đặt các **biến môi trường**:
+   `IMAP_HOST`, `IMAP_PORT`, `IMAP_USER`, `IMAP_PASSWORD`, `SMTP_HOST`, `SMTP_PORT`,
+   `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (xem `.env.example`)
+2. *(Tùy chọn)* Tạo KV namespace và bind `my_kv` nếu muốn đổi cấu hình qua Web UI
+3. Deploy: thư mục `functions/` là entry EdgeOne (`functions/index.tsx` gọi `src/edgeone.ts`), `public/` là file tĩnh
 
 
 ## 🗂️ Cấu trúc dự án

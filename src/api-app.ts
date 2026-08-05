@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
   getMailConfig,
+  isEnvOnlyMode,
   maskedConfig,
   saveSettings,
   type MailConfig,
@@ -141,7 +142,8 @@ export function createWebApp(client: Client): Hono {
 
   app.get('/api/settings', async (c) => {
     const cfg = await getMailConfig();
-    return c.json({ config: maskedConfig(cfg) });
+    // readOnly=true khi chạy trên EdgeOne không có KV → cấu hình qua env vars
+    return c.json({ config: maskedConfig(cfg), readOnly: isEnvOnlyMode() });
   });
 
   app.post('/api/settings', async (c) => {

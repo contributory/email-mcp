@@ -5,6 +5,10 @@ import {
   type MessageStructureObject,
 } from 'imapflow';
 import nodemailer from 'nodemailer';
+// @ts-expect-error libqp/libbase64 là package JS thuần, không có type
+import libqp from 'libqp';
+// @ts-expect-error libqp/libbase64 là package JS thuần, không có type
+import libbase64 from 'libbase64';
 import type { MailConfig } from './config.js';
 
 /* ------------------------------------------------------------------ */
@@ -131,6 +135,28 @@ function decodeBuffer(buf: Buffer | undefined, charset?: string): string {
   }
 }
 
+/**
+ * Giải mã transfer-encoding (quoted-printable / base64).
+ * LƯU Ý: imapflow chỉ tự decode trong `download()`, còn `fetch()` với bodyParts
+ * trả về nội dung THÔ chưa decode (trừ khi server gửi qua FETCH BINARY).
+ */
+function decodeTransfer(
+  buf: Buffer | undefined,
+  encoding: string | undefined,
+  alreadyDecodedByServer = false
+): Buffer | undefined {
+  if (!buf) return undefined;
+  if (alreadyDecodedByServer) return buf;
+  switch ((encoding || '').toLowerCase()) {
+    case 'quoted-printable':
+      return libqp.decode(buf);
+    case 'base64':
+      return libbase64.decode(buf.toString('ascii'));
+    default:
+      return buf;
+  }
+}
+
 function partCharset(part: MessageStructureObject | undefined): string | undefined {
   return part?.parameters?.charset;
 }
@@ -232,7 +258,13 @@ function snippetFrom(msg: FetchMessageObject, folder: string): string {
   if (!msg.bodyParts || msg.bodyParts.size === 0) return '';
   const first = msg.bodyParts.values().next().value as Buffer | undefined;
   if (!first) return '';
-  const text = decodeBuffer(first, partCharset(firstPart(msg)));
+  const part = firstPart(msg);
+  const decoded = decodeTransfer(
+    first,
+    part.encoding,
+    msg.binaryParts?.has(part.part || '') ?? false
+  );
+  const text = decodeBuffer(decoded, partCharset(part));
   return text.replace(SNIPPET_RE, ' ').replace(/\s+/g, ' ').trim();
 }
 
@@ -450,15 +482,19 @@ export async function getEmail(
       );
       if (full && full.bodyParts) {
         if (plainPath && full.bodyParts.has(plainPath)) {
+          const part = findPart(bst, plainPath);
+          const raw = full.bodyParts.get(plainPath);
           plain = decodeBuffer(
-            full.bodyParts.get(plainPath),
-            partCharset(findPart(bst, plainPath))
+            decodeTransfer(raw, part?.encoding, full.binaryParts?.has(plainPath) ?? false),
+            partCharset(part)
           );
         }
         if (htmlPath && full.bodyParts.has(htmlPath)) {
+          const part = findPart(bst, htmlPath);
+          const raw = full.bodyParts.get(htmlPath);
           html = decodeBuffer(
-            full.bodyParts.get(htmlPath),
-            partCharset(findPart(bst, htmlPath))
+            decodeTransfer(raw, part?.encoding, full.binaryParts?.has(htmlPath) ?? false),
+            partCharset(part)
           );
         }
       }
@@ -500,15 +536,17 @@ export async function getAttachment(
       throw new Error(`Không tìm thấy phần ${partId} của email UID ${uid}`);
     }
     const part = findPart(msg.bodyStructure, partId);
-    const buf = msg.bodyParts.get(partId)!;
+    const raw = msg.bodyParts.get(partId)!;
+    const decoded =
+      decodeTransfer(raw, part?.encoding, msg.binaryParts?.has(partId) ?? false) || raw;
     return {
       filename:
         part?.dispositionParameters?.filename ||
         part?.parameters?.name ||
         `attachment-${partId}`,
       contentType: part?.type || 'application/octet-stream',
-      size: buf.length,
-      contentBase64: buf.toString('base64'),
+      size: decoded.length,
+      contentBase64: decoded.toString('base64'),
     };
   } finally {
     await client.logout().catch(() => {});

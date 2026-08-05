@@ -1,11 +1,13 @@
-import { setKvBinding } from './config.js';
+import { setEdgeOneMode, setKvBinding } from './config.js';
 import { createInMemoryClient } from './mcp-server.js';
 import { createWebApp } from './api-app.js';
 
 /* ═══════════════════════════════════════════════════════════
    Entry cho EdgeOne Functions (functions/index.tsx gọi tới đây).
    Trên EdgeOne:
-   - KHÔNG có filesystem → cài đặt lưu vào KV binding `my_kv`
+   - KHÔNG có filesystem → cấu hình lấy từ BIẾN MÔI TRƯỜNG
+     (đặt trong bảng điều khiển EdgeOne, không cần KV)
+   - Nếu sau này có KV binding `my_kv` thì vẫn dùng để lưu settings
    - File tĩnh được phục vụ bằng cách re-fetch URL (như template gốc)
    ═══════════════════════════════════════════════════════════ */
 
@@ -14,7 +16,8 @@ export async function emailOnRequest(context: {
   params: Record<string, string>;
   env: Record<string, any>;
 }): Promise<Response> {
-  // Cấp KV binding → config.ts tự lưu settings vào KV thay vì file
+  // Chế độ EdgeOne: ưu tiên biến môi trường; KV chỉ dùng nếu có binding
+  setEdgeOneMode(true);
   setKvBinding(context.env?.my_kv || null);
 
   const mcp = await createInMemoryClient();

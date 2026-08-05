@@ -60,3 +60,21 @@ export async function createFsStore(): Promise<SettingsStore> {
     },
   };
 }
+
+/**
+ * Backend "chỉ môi trường" — dùng trên EdgeOne Pages khi KHÔNG có KV binding.
+ * Cấu hình được lấy hoàn toàn từ biến môi trường (đặt trong dashboard EdgeOne),
+ * mọi nỗ lực lưu qua Web UI đều trả về thông báo hướng dẫn rõ ràng.
+ */
+export function createEnvOnlyStore(): SettingsStore {
+  return {
+    async read() {
+      return null; // env vars là nguồn cấu hình duy nhất
+    },
+    async write() {
+      throw new Error(
+        'Trên EdgeOne Pages, cấu hình phải được đặt qua biến môi trường (IMAP_HOST, IMAP_USER, IMAP_PASSWORD, SMTP_HOST, SMTP_PASSWORD…) trong bảng điều khiển EdgeOne — không thể lưu qua Web UI'
+      );
+    },
+  };
+}
