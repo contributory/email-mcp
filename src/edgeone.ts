@@ -1,6 +1,7 @@
 import { setEdgeOneMode, setKvBinding } from './config.js';
 import { createInMemoryClient } from './mcp-server.js';
 import { createWebApp } from './api-app.js';
+import { handleMcpRequest } from './mcp-http.js';
 
 /* ═══════════════════════════════════════════════════════════
    Entry cho EdgeOne Functions (functions/index.tsx gọi tới đây).
@@ -37,6 +38,13 @@ export async function emailOnRequest(context: {
   setEdgeOneMode(true);
   setKvBinding(context.env?.my_kv || null);
   injectEnvIntoProcess(context.env || {});
+
+  // Endpoint MCP Streamable HTTP — cho MCP client kết nối từ xa
+  const url = new URL(context.request.url);
+  const path = url.pathname.replace(/\/+$/, '') || '/';
+  if (path === '/mcp') {
+    return handleMcpRequest(context.request);
+  }
 
   const mcp = await createInMemoryClient();
   const app = createWebApp(mcp.client);

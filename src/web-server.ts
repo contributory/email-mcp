@@ -4,6 +4,7 @@ import { serve, type ServerType } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { createInMemoryClient, type McpClientHandle } from './mcp-server.js';
 import { createWebApp } from './api-app.js';
+import { handleMcpRequest } from './mcp-http.js';
 
 const PORT = Number(process.env.PORT || 3000);
 
@@ -16,6 +17,10 @@ export interface WebServerHandle {
 export async function startWeb(): Promise<WebServerHandle> {
   const mcp: McpClientHandle = await createInMemoryClient();
   const app = createWebApp(mcp.client);
+
+  /* ------------------------- MCP Streamable HTTP ------------------------- */
+
+  app.all('/mcp', async (c) => handleMcpRequest(c.req.raw));
 
   /* ------------------------- Static SPA (Node) ------------------------- */
 
