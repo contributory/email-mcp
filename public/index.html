@@ -36,9 +36,6 @@
           <button id="refreshBtn" class="btn btn-ghost" title="Làm mới">
             <span class="btn-icon">↻</span> Làm mới
           </button>
-          <button id="settingsBtn" class="btn btn-ghost" title="Cài đặt tài khoản">
-            <span class="btn-icon">⚙</span> Cài đặt
-          </button>
         </div>
         <div id="mcpBadge" class="mcp-badge" title="Trạng thái kết nối MCP">
           <span class="dot"></span> MCP đang kết nối
@@ -66,10 +63,11 @@
           <div>
             <strong>Chưa có cấu hình email</strong>
             <p class="muted small">
-              Mở Cài đặt để nhập máy chủ IMAP/SMTP (Gmail, Outlook, Zoho…)
+              Đặt biến môi trường IMAP/SMTP (<code>IMAP_HOST</code>, <code>IMAP_USER</code>,
+              <code>IMAP_PASSWORD</code>, <code>SMTP_HOST</code>, <code>SMTP_PASSWORD</code>,
+              <code>SMTP_FROM</code>) rồi tải lại trang.
             </p>
           </div>
-          <button id="setupBtn" class="btn btn-primary">Cấu hình ngay</button>
         </div>
 
         <div id="emailList" class="email-list"></div>
@@ -141,93 +139,6 @@
           <button id="sendBtn" class="btn btn-primary">
             <span id="sendBtnLabel">Gửi</span>
           </button>
-        </footer>
-      </div>
-    </div>
-
-    <!-- ═════════════ SETTINGS MODAL ═════════════ -->
-    <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="modal-backdrop" data-close-modal="settingsModal"></div>
-      <div class="modal-panel settings-panel">
-        <header class="modal-header">
-          <h3>Cài đặt tài khoản email</h3>
-          <button class="btn btn-icon-btn" data-close-modal="settingsModal" title="Đóng">✕</button>
-        </header>
-
-        <div class="settings-body">
-          <div class="settings-section">
-            <h4>📥 IMAP (nhận email)</h4>
-            <div class="settings-grid">
-              <div class="field-row">
-                <label for="sImapHost">Máy chủ</label>
-                <input id="sImapHost" type="text" placeholder="imap.gmail.com" />
-              </div>
-              <div class="field-row">
-                <label for="sImapPort">Cổng</label>
-                <input id="sImapPort" type="number" placeholder="993" />
-              </div>
-              <div class="field-row">
-                <label for="sImapUser">Tên người dùng</label>
-                <input id="sImapUser" type="text" placeholder="you@gmail.com" autocomplete="off" />
-              </div>
-              <div class="field-row">
-                <label for="sImapPass">Mật khẩu / App password</label>
-                <input id="sImapPass" type="password" placeholder="••••••••" autocomplete="off" />
-              </div>
-              <label class="check-row">
-                <input id="sImapSecure" type="checkbox" checked /> Kết nối bảo mật (SSL/TLS)
-              </label>
-            </div>
-          </div>
-
-          <div class="settings-section">
-            <h4>📤 SMTP (gửi email)</h4>
-            <div class="settings-grid">
-              <div class="field-row">
-                <label for="sSmtpHost">Máy chủ</label>
-                <input id="sSmtpHost" type="text" placeholder="smtp.gmail.com" />
-              </div>
-              <div class="field-row">
-                <label for="sSmtpPort">Cổng</label>
-                <input id="sSmtpPort" type="number" placeholder="465" />
-              </div>
-              <div class="field-row">
-                <label for="sSmtpUser">Tên người dùng</label>
-                <input id="sSmtpUser" type="text" placeholder="you@gmail.com" autocomplete="off" />
-              </div>
-              <div class="field-row">
-                <label for="sSmtpPass">Mật khẩu / App password</label>
-                <input id="sSmtpPass" type="password" placeholder="••••••••" autocomplete="off" />
-              </div>
-              <div class="field-row">
-                <label for="sFrom">Địa chỉ gửi (From)</label>
-                <input id="sFrom" type="text" placeholder="you@gmail.com" autocomplete="off" />
-              </div>
-              <label class="check-row">
-                <input id="sSmtpSecure" type="checkbox" checked /> Kết nối bảo mật (SSL/TLS)
-              </label>
-            </div>
-          </div>
-
-          <p class="muted small">
-            💡 Với Gmail, hãy bật <strong>2 bước xác minh</strong> và tạo
-            <strong>App password</strong> (myaccount.google.com/apppasswords). Mật khẩu được
-            lưu dưới dạng văn bản thuần trong file <code>.mail-settings.json</code> ở thư mục dự án.
-          </p>
-
-          <div id="envOnlyNote" class="env-only-note hidden">
-            ⚠️ <strong>Đang chạy trên EdgeOne Pages (không có KV)</strong> — cấu hình chỉ được
-            đặt qua <strong>biến môi trường</strong> trong bảng điều khiển EdgeOne:
-            <code>IMAP_HOST</code>, <code>IMAP_USER</code>, <code>IMAP_PASSWORD</code>,
-            <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>,
-            <code>SMTP_FROM</code>. Form bên dưới chỉ hiển thị thông tin hiện tại (chỉ đọc).
-          </div>
-        </div>
-
-        <footer class="modal-footer">
-          <div class="footer-spacer"></div>
-          <button id="testBtn" class="btn btn-ghost">Kiểm tra kết nối</button>
-          <button id="saveSettingsBtn" class="btn btn-primary">Lưu cài đặt</button>
         </footer>
       </div>
     </div>

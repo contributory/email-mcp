@@ -205,10 +205,7 @@ async function loadAccount() {
     $('#setupBanner').classList.remove('hidden');
     $('#mcpBadge').classList.add('error');
     $('#mcpBadge').title = `Lỗi kết nối: ${err.message}`;
-    // Nếu đang mở settings modal thì hiển thị lỗi
-    if (!$('#settingsModal').classList.contains('hidden')) {
-      toast(`Kiểm tra kết nối thất bại: ${err.message}`, 'error');
-    }
+    toast(`Lỗi kết nối email: ${err.message}`, 'error');
   }
 }
 
@@ -601,95 +598,10 @@ async function sendCompose() {
   }
 }
 
-/* ------------------------- Settings ------------------------- */
-
-async function loadSettingsForm() {
-  try {
-    const { config, readOnly } = await api('/api/settings');
-    $('#sImapHost').value = config.imapHost || '';
-    $('#sImapPort').value = config.imapPort || 993;
-    $('#sImapSecure').checked = config.imapSecure !== false;
-    $('#sImapUser').value = config.imapUser || '';
-    $('#sImapPass').value = config.imapPass || '';
-    $('#sSmtpHost').value = config.smtpHost || '';
-    $('#sSmtpPort').value = config.smtpPort || 465;
-    $('#sSmtpSecure').checked = config.smtpSecure !== false;
-    $('#sSmtpUser').value = config.smtpUser || '';
-    $('#sSmtpPass').value = config.smtpPass || '';
-    $('#sFrom').value = config.from || '';
-
-    // Chế độ chỉ đọc (EdgeOne không có KV → cấu hình qua env vars)
-    $('#envOnlyNote').classList.toggle('hidden', !readOnly);
-    $('#saveSettingsBtn').disabled = !!readOnly;
-    $('#testBtn').disabled = !!readOnly;
-  } catch (err) {
-    toast(`Không tải được cài đặt: ${err.message}`, 'error');
-  }
-}
-
-function collectSettings() {
-  return {
-    imapHost: $('#sImapHost').value.trim(),
-    imapPort: Number($('#sImapPort').value) || 993,
-    imapSecure: $('#sImapSecure').checked,
-    imapUser: $('#sImapUser').value.trim(),
-    imapPass: $('#sImapPass').value,
-    smtpHost: $('#sSmtpHost').value.trim(),
-    smtpPort: Number($('#sSmtpPort').value) || 465,
-    smtpSecure: $('#sSmtpSecure').checked,
-    smtpUser: $('#sSmtpUser').value.trim(),
-    smtpPass: $('#sSmtpPass').value,
-    from: $('#sFrom').value.trim(),
-  };
-}
-
-async function saveSettings(closeAfter = true) {
-  const btn = $('#saveSettingsBtn');
-  btn.disabled = true;
-  btn.textContent = 'Đang lưu…';
-  try {
-    await api('/api/settings', { method: 'POST', body: JSON.stringify(collectSettings()) });
-    toast('Đã lưu cài đặt ✓', 'success');
-    if (closeAfter) $('#settingsModal').classList.add('hidden');
-    await loadAccount();
-    await loadEmails();
-  } catch (err) {
-    toast(`Lưu thất bại: ${err.message}`, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Lưu cài đặt';
-  }
-}
-
-async function testConnection() {
-  const btn = $('#testBtn');
-  btn.disabled = true;
-  btn.textContent = 'Đang kiểm tra…';
-  try {
-    await api('/api/settings', { method: 'POST', body: JSON.stringify(collectSettings()) });
-    await api('/api/account');
-    toast('Kết nối IMAP/SMTP thành công ✓', 'success');
-    await loadAccount();
-  } catch (err) {
-    toast(`Kiểm tra thất bại: ${err.message}`, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Kiểm tra kết nối';
-  }
-}
-
 /* ------------------------- Events ------------------------- */
 
 function bindEvents() {
   $('#composeBtn').addEventListener('click', () => openCompose('new'));
-  $('#setupBtn').addEventListener('click', () => {
-    $('#settingsModal').classList.remove('hidden');
-    loadSettingsForm();
-  });
-  $('#settingsBtn').addEventListener('click', () => {
-    $('#settingsModal').classList.remove('hidden');
-    loadSettingsForm();
-  });
   $('#refreshBtn').addEventListener('click', async () => {
     $('#refreshBtn').disabled = true;
     await Promise.all([loadAccount(), loadEmails()]);
@@ -712,13 +624,11 @@ function bindEvents() {
   $$('[data-close-modal]').forEach((el) =>
     el.addEventListener('click', () => {
       $('#composeModal').classList.add('hidden');
-      $('#settingsModal').classList.add('hidden');
     })
   );
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       $('#composeModal').classList.add('hidden');
-      $('#settingsModal').classList.add('hidden');
     }
   });
 
@@ -742,19 +652,6 @@ function bindEvents() {
     handleFileSelect(e.target.files);
     e.target.value = '';
   });
-
-  $('#saveSettingsBtn').addEventListener('click', () => saveSettings(true));
-  $('#testBtn').addEventListener('click', testConnection);
-
-  // Mở settings modal tự động nếu chưa cấu hình
-  if (!state.account && !localStorage.getItem('mailmcp-hide-setup')) {
-    setTimeout(() => {
-      if (!state.account) {
-        $('#settingsModal').classList.remove('hidden');
-        loadSettingsForm();
-      }
-    }, 800);
-  }
 }
 
 /* ------------------------- Init ------------------------- */

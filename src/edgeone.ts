@@ -1,14 +1,13 @@
-import { setEdgeOneMode, setEnvOverlay, setKvBinding } from './config.js';
+import { setEnvOverlay } from './config.js';
 import { createInMemoryClient } from './mcp-server.js';
 import { createWebApp } from './api-app.js';
 import { handleMcpRequest } from './mcp-http.js';
 
-/* ═══════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════════════
    Entry cho EdgeOne Functions (functions/index.tsx gọi tới đây).
    Trên EdgeOne:
-   - KHÔNG có filesystem → cấu hình lấy từ BIẾN MÔI TRƯỜNG
-     (đặt trong bảng điều khiển EdgeOne, không cần KV)
-   - Nếu sau này có KV binding `my_kv` thì vẫn dùng để lưu settings
+   - KHÔNG có filesystem → cấu hình LÔN lấy từ BIẾN MÔI TRƯỞNG
+     (đặt trong bảng điều khiển EdgeOne)
    - File tĩnh được phục vụ bằng cách re-fetch URL (như template gốc)
    ═══════════════════════════════════════════════════════════ */
 
@@ -17,12 +16,9 @@ export async function emailOnRequest(context: {
   params: Record<string, string>;
   env: Record<string, any>;
 }): Promise<Response> {
-  // Chế độ EdgeOne: ưu tiên biến môi trường; KV chỉ dùng nếu có binding.
   // EdgeOne Pages đưa biến môi trường vào `context.env` (KHÔNG phải process.env
   // — trên edge runtime process.env có thể không tồn tại hoặc read-only), nên
-  // nạp trực tiếp vào overlay để envConfig() đọc được.
-  setEdgeOneMode(true);
-  setKvBinding(context.env?.my_kv || null);
+  // nạp trực tiếp vào overlay để getMailConfig() đọc được.
   setEnvOverlay(context.env);
 
   // Endpoint MCP Streamable HTTP — cho MCP client kết nối từ xa

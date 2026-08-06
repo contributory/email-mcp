@@ -20,7 +20,7 @@
 - 📖 **Đọc email**: render HTML an toàn (sanitize XSS), text/plain, tải file đính kèm
 - ✍️ **Soạn email**: editor định dạng (B/I/U/list/trích dẫn/link), đính kèm file, reply/reply-all/forward
 - 🔍 **Tìm kiếm** với debounce, đánh dấu đã đọc tự động
-- ⚙️ **Cài đặt tài khoản** trực quan trên UI + kiểm tra kết nối
+- ⚙️ **Cấu hình qua biến môi trường** — hiển thị hướng dẫn ngay trên UI khi thiếu cấu hình
 
 ## 🚀 Cài đặt
 
@@ -35,7 +35,7 @@ npm run build
 
 ```bash
 npm start            # hoặc: npm run dev (hot reload)
-# Mở http://localhost:3000 — lần đầu sẽ tự mở hộp thoại cấu hình tài khoản
+# Mở http://localhost:3000 — nhớ đặt biến môi trường IMAP/SMTP trước (xem .env.example)
 ```
 
 ### 2. MCP server qua stdio (cho Claude Desktop, VS Code Copilot…)
@@ -61,10 +61,10 @@ Hoặc cài toàn cục: `npm link` rồi dùng `mcp-email`.
 
 ## ⚙️ Cấu hình tài khoản
 
-Có 2 cách (cách sau ghi đè cách trước):
+Toàn bộ cấu hình lấy từ **biến môi trường** (local dùng file `.env`, EdgeOne dùng dashboard). Không có cách nhập/lưu cấu hình qua Web UI.
 
-1. **File `.env`** — copy từ `.env.example` và điền thông tin
-2. **Web UI → Cài đặt** — lưu vào settings store (xem bên dưới)
+1. Copy `.env.example` → `.env` và điền thông tin (local), hoặc
+2. Đặt biến môi trường trong dashboard EdgeOne Pages (deploy)
 
 | Biến | Mô tả | Mặc định |
 |---|---|---|
@@ -73,22 +73,10 @@ Có 2 cách (cách sau ghi đè cách trước):
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | Máy chủ SMTP | smtp.gmail.com / 465 / true |
 | `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_FROM` | Tài khoản SMTP & địa chỉ From | = IMAP |
 | `PORT` | Cổng Web UI | 3000 |
-| `SETTINGS_FILE` | Đường dẫn file cài đặt (Node) | .mail-settings.json |
 
 > 💡 **Gmail**: bật *2 bước xác minh* rồi tạo *App password* tại myaccount.google.com/apppasswords — không dùng mật khẩu đăng nhập thường.
 
-### Nơi lưu cài đặt (settings store) — tự chọn backend
-
-`src/config.ts` tự động chọn nơi lưu theo môi trường chạy:
-
-| Môi trường | Backend | Chi tiết |
-|---|---|---|
-| **Node.js local / MCP stdio** | File `fs` | `.mail-settings.json` trong thư mục dự án (đổi qua `SETTINGS_FILE`) |
-| **EdgeOne Pages (không có KV)** | **Biến môi trường** | Cấu hình đặt trong dashboard EdgeOne (`IMAP_HOST`, `IMAP_USER`, `IMAP_PASSWORD`…) — không cần filesystem, không cần KV |
-| **EdgeOne Pages (có KV)** | **KV binding `my_kv`** | Key `mail-mcp:settings` — tùy chọn, chỉ cần nếu muốn lưu cài đặt qua Web UI |
-
-Trên EdgeOne không cần KV: Web UI hiển thị form **chỉ đọc** kèm thông báo đặt cấu hình qua
-biến môi trường; mọi nỗ lực lưu qua UI đều trả về hướng dẫn rõ ràng.
+Khi thiếu cấu hình, Web UI hiển thị banner hướng dẫn đặt biến môi trường rồi tải lại trang — nhất quán trên cả Node.js local lẫn EdgeOne Pages (không cần filesystem, không cần KV).
 
 ## 🔌 Kết nối MCP từ xa qua HTTP (`/mcp`)
 
@@ -120,22 +108,20 @@ npm run deploy        # EdgeOne Pages (đã có sẵn cấu hình deploy)
 1. Trong bảng điều khiển EdgeOne Pages → Settings, đặt các **biến môi trường**:
    `IMAP_HOST`, `IMAP_PORT`, `IMAP_USER`, `IMAP_PASSWORD`, `SMTP_HOST`, `SMTP_PORT`,
    `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (xem `.env.example`)
-2. *(Tùy chọn)* Tạo KV namespace và bind `my_kv` nếu muốn đổi cấu hình qua Web UI
-3. Deploy: thư mục `functions/` là entry EdgeOne (`functions/index.tsx` gọi `src/edgeone.ts`), `public/` là file tĩnh
+2. Deploy: thư mục `functions/` là entry EdgeOne (`functions/index.tsx` gọi `src/edgeone.ts`), `public/` là file tĩnh
 
 
 ## 🗂️ Cấu trúc dự án
 
 ```
 src/
-├── config.ts          # Cấu hình env + settings store (tự chọn fs/KV) + mask mật khẩu
+├── config.ts          # Cấu hình từ biến môi trường + mask mật khẩu
 ├── mcp-http.ts        # Endpoint /mcp: MCP Streamable HTTP (JSON-RPC, không SSE)
-├── storage.ts         # Tầng lưu trữ: backend KV (EdgeOne) + backend file (Node)
 ├── email-service.ts   # Lõi IMAP (imapflow) + SMTP (nodemailer)
 ├── mcp-server.ts      # MCP server: 7 tools, stdio + in-memory client
 ├── api-app.ts         # Hono REST API (không phụ thuộc Node — chạy được trên EdgeOne)
 ├── web-server.ts      # Node web server: SPA + serve static (chỉ dùng local)
-├── edgeone.ts         # Entry EdgeOne Functions: KV binding + phục vụ file tĩnh
+├── edgeone.ts         # Entry EdgeOne Functions: phục vụ API + file tĩnh
 └── index.ts           # CLI: `mcp-email` (stdio) | `mcp-email web` (port 3000)
 public/                # Web UI: index.html + style.css + app.js
 functions/             # EdgeOne Pages entry: index.tsx → src/edgeone.ts
@@ -153,10 +139,8 @@ functions/             # EdgeOne Pages entry: index.tsx → src/edgeone.ts
 | `POST /api/emails/:uid/read` | Đánh dấu đã đọc |
 | `GET /api/search?q=&folder=` | Tìm kiếm |
 | `POST /api/send` | Gửi email |
-| `GET/POST /api/settings` | Xem / lưu cài đặt (mật khẩu được mask) |
 
 ## 🔐 Bảo mật
 
-- Mật khẩu được **mask** khi trả về API (`********`)
 - HTML email được **sanitize** (chặn script, iframe, `on*`, `javascript:`…) trước khi render
-- File `.mail-settings.json` và `.env` đã được gitignore — mật khẩu lưu dạng văn bản thuần, chỉ dùng cho máy cá nhân; trên EdgeOne cài đặt nằm trong KV `my_kv` (được bảo vệ bởi quyền truy cập platform)
+- Cấu hình chỉ lấy từ biến môi trường: file `.env` đã được gitignore (chỉ dùng cho máy cá nhân); trên EdgeOne biến môi trường được bảo vệ bởi quyền truy cập platform

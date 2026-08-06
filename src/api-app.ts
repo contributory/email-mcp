@@ -1,13 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import {
-  getMailConfig,
-  isEnvOnlyMode,
-  maskedConfig,
-  saveSettings,
-  type MailConfig,
-} from './config.js';
 
 /* ═══════════════════════════════════════════════════════════
    Hono app với đầy đủ REST API (gọi qua MCP client).
@@ -137,32 +130,6 @@ export function createWebApp(client: Client): Hono {
       return c.json(result);
     } catch (err: any) {
       return c.json({ error: err?.message || String(err) }, 502);
-    }
-  });
-
-  app.get('/api/settings', async (c) => {
-    const cfg = await getMailConfig();
-    // readOnly=true khi chạy trên EdgeOne không có KV → cấu hình qua env vars
-    return c.json({ config: maskedConfig(cfg), readOnly: isEnvOnlyMode() });
-  });
-
-  app.post('/api/settings', async (c) => {
-    try {
-      const body = (await c.req.json()) as Partial<MailConfig>;
-      if (!body.imapHost || !body.imapUser) {
-        return c.json({ error: 'Thiếu imapHost hoặc imapUser' }, 400);
-      }
-      const cfg = await saveSettings({
-        ...body,
-        imapPort: Number(body.imapPort) || 993,
-        smtpPort: Number(body.smtpPort) || 465,
-        smtpHost: body.smtpHost || body.imapHost,
-        smtpUser: body.smtpUser || body.imapUser,
-        from: body.from || body.imapUser,
-      });
-      return c.json({ ok: true, config: maskedConfig(cfg) });
-    } catch (err: any) {
-      return c.json({ error: err?.message || String(err) }, 400);
     }
   });
 
