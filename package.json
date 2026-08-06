@@ -9,10 +9,12 @@
     "dev": "tsx watch src/index.ts web",
     "dev:mcp": "tsx src/index.ts",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 tsc",
+    "typecheck:functions": "tsc -p tsconfig.functions.json",
     "start": "node dist/index.js web",
     "mcp": "node dist/index.js",
     "sync-docs": "node scripts/sync-docs.js",
-    "deploy": "rm -rf ./node_modules && edgeone pages deploy ./ -n edgeone-hono-app -t "
+    "deploy": "edgeone pages deploy ./ -n email-mcp",
+    "deploy:ci": "edgeone pages deploy ./ -n email-mcp -t \"$EDGEONE_PAGES_API_TOKEN\""
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

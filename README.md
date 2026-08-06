@@ -102,13 +102,15 @@ cũng gọi được; mỗi session có `Mcp-Session-Id` riêng (tự dọn khi 
 ## 🚀 Deploy lên EdgeOne Pages
 
 ```bash
-npm run deploy        # EdgeOne Pages (đã có sẵn cấu hình deploy)
+npm run deploy        # EdgeOne Pages — cần đã đăng nhập `edgeone login` (hoặc token trong .edgeone/.token)
+npm run deploy:ci     # Dành cho CI: dùng token qua biến môi trường EDGEONE_PAGES_API_TOKEN
 ```
 
 1. Trong bảng điều khiển EdgeOne Pages → Settings, đặt các **biến môi trường**:
    `IMAP_HOST`, `IMAP_PORT`, `IMAP_USER`, `IMAP_PASSWORD`, `SMTP_HOST`, `SMTP_PORT`,
    `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` (xem `.env.example`)
 2. Deploy: thư mục `functions/` là entry EdgeOne (`functions/index.tsx` gọi `src/edgeone.ts`), `public/` là file tĩnh
+3. Kiểm tra type-check trước khi deploy: `npm run typecheck:functions`
 
 
 ## 🗂️ Cấu trúc dự án
